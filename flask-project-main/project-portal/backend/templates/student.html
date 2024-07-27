@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='student.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Muli:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('student') }}">Student Dashboard</a></li>
+            <!-- <li><a href="{{ url_for('professor') }}">Professor Dashboard</a></li> -->
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </nav>
+    <div id="content">
+        <h1>Student Dashboard</h1>
+        <form id="requestForm">
+            <label>
+                Student Name:
+                <input type="text" id="studentName" required>
+            </label>
+            <br>
+            <label>
+                Entry Number:
+                <input type="text" id="entryNumber" required>
+            </label>
+            <br>
+            <label>
+                Request Type:
+                <select id="requestType" required>
+                    <option value="">Select</option>
+                    <option value="Project Request">Project Request</option>
+                    <option value="Self-Study Request">Self-Study Request</option>
+                    <!-- Add more options as needed -->
+                </select>
+            </label>
+            <br>
+            <label>
+                Description:
+                <textarea id="description" required></textarea>
+            </label>
+            <br>
+            <label>
+                Additional Remarks:
+                <textarea id="additionalRemarks"></textarea>
+            </label>
+            <br>
+            <label>
+                Request Urgency:
+                <select id="urgency" required>
+                    <option value="">Select</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+            </label>
+            <br>
+            <label>
+                Estimated Duration (days):
+                <input type="number" id="estimatedDuration" required>
+            </label>
+            <br>
+            <button type="submit">Submit Request</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('requestForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const studentName = document.getElementById('studentName').value;
+            const entryNumber = document.getElementById('entryNumber').value;
+            const requestType = document.getElementById('requestType').value;
+            const description = document.getElementById('description').value;
+            const additionalRemarks = document.getElementById('additionalRemarks').value;
+            const urgency = document.getElementById('urgency').value;
+            const estimatedDuration = document.getElementById('estimatedDuration').value;
+            
+            fetch('/requests', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    student_name: studentName,
+                    entry_number: entryNumber,
+                    request_type: requestType,
+                    description: description,
+                    additional_remarks: additionalRemarks,
+                    urgency: urgency,
+                    estimated_duration: parseInt(estimatedDuration)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Project request submitted!');
+                console.log('Project request submitted:', data);
+                window.location.href = '/';  // Redirect to homepage
+            })
+            .catch(error => {
+                console.error('There was an error submitting the project request!', error);
+            });
+        });
+    </script>
+</body>
+</html>

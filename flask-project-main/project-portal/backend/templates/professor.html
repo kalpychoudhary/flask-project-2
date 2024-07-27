@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professor Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='professor.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Muli:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <ul>
+            <!-- <li><a href="{{ url_for('student') }}">Student Dashboard</a></li> -->
+            <li><a href="{{ url_for('professor') }}">Professor Dashboard</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </nav>
+    <div id="content">
+        <h1>Professor Dashboard</h1>
+        <h2>Project Requests</h2>
+        <ul id="requestsList">
+            <!-- Project requests will be populated here -->
+        </ul>
+    </div>
+
+    <script>
+        function fetchRequests() {
+            fetch('/requests')
+                .then(response => response.json())
+                .then(requests => {
+                    const requestsList = document.getElementById('requestsList');
+                    if (requests.length > 0) {
+                        requestsList.innerHTML = requests.map(request => `
+                            <li>
+                                <strong>Student Name:</strong> ${request.student_name}<br>
+                                <strong>Entry Number:</strong> ${request.entry_number}<br>
+                                <strong>Type:</strong> ${request.request_type}<br>
+                                <strong>Description:</strong> ${request.description}<br>
+                                <strong>Date:</strong> ${request.submission_date}<br>
+                                <strong>Remarks:</strong> ${request.additional_remarks}<br>
+                                <strong>Urgency:</strong> ${request.urgency}<br>
+                                <strong>Estimated Duration:</strong> ${request.estimated_duration} days
+                            </li>
+                        `).join('');
+                    } else {
+                        requestsList.innerHTML = '<li>No requests found.</li>';
+                    }
+                })
+                .catch(error => {
+                    console.error('There was an error fetching the project requests!', error);
+                });
+        }
+
+        // Fetch the requests when the page loads
+        window.onload = fetchRequests;
+    </script>
+</body>
+</html>

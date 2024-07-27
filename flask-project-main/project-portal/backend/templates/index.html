@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="#" onclick="showStudentDashboard()">Student Dashboard</a></li>
+            <li><a href="#" onclick="showProfessorDashboard()">Professor Dashboard</a></li>
+        </ul>
+    </nav>
+    <div id="content"></div>
+
+    <script>
+        function showStudentDashboard() {
+            document.getElementById('content').innerHTML = `
+                <h1>Student Dashboard</h1>
+                <form id="requestForm">
+                    <label>
+                        Student Name:
+                        <input type="text" id="studentName" required>
+                    </label>
+                    <br>
+                    <label>
+                        Entry Number:
+                        <input type="text" id="entryNumber" required>
+                    </label>
+                    <br>
+                    <label>
+                        Request Type:
+                        <select id="requestType" required>
+                            <option value="">Select</option>
+                            <option value="Project Request">Project Request</option>
+                            <option value="Self-Study Request">Self-Study Request</option>
+                            <!-- Add more options as needed -->
+                        </select>
+                    </label>
+                    <br>
+                    <label>
+                        Description:
+                        <textarea id="description" required></textarea>
+                    </label>
+                    <br>
+                    <label>
+                        Additional Remarks:
+                        <textarea id="additionalRemarks"></textarea>
+                    </label>
+                    <br>
+                    <label>
+                        Request Urgency:
+                        <select id="urgency" required>
+                            <option value="">Select</option>
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </label>
+                    <br>
+                    <label>
+                        Estimated Duration (days):
+                        <input type="number" id="estimatedDuration" required>
+                    </label>
+                    <br>
+                    <button type="submit">Submit Request</button>
+                </form>
+            `;
+
+            document.getElementById('requestForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const studentName = document.getElementById('studentName').value;
+                const entryNumber = document.getElementById('entryNumber').value;
+                const requestType = document.getElementById('requestType').value;
+                const description = document.getElementById('description').value;
+                const additionalRemarks = document.getElementById('additionalRemarks').value;
+                const urgency = document.getElementById('urgency').value;
+                const estimatedDuration = document.getElementById('estimatedDuration').value;
+                
+                fetch('/requests', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        student_name: studentName,
+                        entry_number: entryNumber,
+                        request_type: requestType,
+                        description: description,
+                        additional_remarks: additionalRemarks,
+                        urgency: urgency,
+                        estimated_duration: parseInt(estimatedDuration)
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Project request submitted!');
+                    console.log('Project request submitted:', data);
+                    window.location.href = '/';  // Redirect to homepage
+                })
+                .catch(error => {
+                    console.error('There was an error submitting the project request!', error);
+                });
+            });
+        }
+
+        function showProfessorDashboard() {
+            fetch('/requests')
+                .then(response => response.json())
+                .then(requests => {
+                    const content = `
+                        <h1>Professor Dashboard</h1>
+                        <h2>Project Requests</h2>
+                        <ul>
+                            ${requests.length > 0
+                                ? requests.map(request => `
+                                    <li>
+                                        <strong>Student Name:</strong> ${request.student_name}<br>
+                                        <strong>Entry Number:</strong> ${request.entry_number}<br>
+                                        <strong>Type:</strong> ${request.request_type}<br>
+                                        <strong>Description:</strong> ${request.description}<br>
+                                        <strong>Date:</strong> ${request.submission_date}<br>
+                                        <strong>Remarks:</strong> ${request.additional_remarks}<br>
+                                        <strong>Urgency:</strong> ${request.urgency}<br>
+                                        <strong>Estimated Duration:</strong> ${request.estimated_duration} days
+                                    </li>
+                                `).join('')
+                                : '<li>No requests found.</li>'
+                            }
+                        </ul>
+                    `;
+                    document.getElementById('content').innerHTML = content;
+                })
+                .catch(error => {
+                    console.error('There was an error fetching the project requests!', error);
+                });
+        }
+    </script>
+</body>
+</html>
